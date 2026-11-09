@@ -127,7 +127,8 @@ h1,#question-heading{scroll-margin-top:88px}
  function learn(state){
   const agg={};WEIGHTS.forEach(([d])=>agg[d]={c:0,t:0});
   state.history.forEach(s=>{const v=C.score(s,bank);Object.entries(v.domains).forEach(([d,x])=>{if(agg[d]){agg[d].c+=x.correct;agg[d].t+=x.total;}});});
-  const have=state.history.length>0,count={};D.questions.forEach(q=>count[q.domain]=(count[q.domain]||0)+1);
+  if(state.active){const a=state.active;a.ids.forEach(id=>{const q=bank[id];if(agg[q.domain]&&(a.checked||[]).includes(id)){agg[q.domain].t++;if(C.correct(a,q))agg[q.domain].c++;}});}
+  const have=state.history.length>0||Boolean(state.active&&(state.active.checked||[]).length),count={};D.questions.forEach(q=>count[q.domain]=(count[q.domain]||0)+1);
   const q53=quota(53);
   const ranked=WEIGHTS.map(([d,w])=>{const a=agg[d],acc=a.t?a.c/a.t:null;return{d,w,acc,gap:acc===null?w:w*(1-acc)};}).sort((a,b)=>b.gap-a.gap);
   return `<div class="eyebrow">Study smarter</div><h1 class="gap-top">Learning plan</h1><p class="lead">Prioritise high-weight topics, practise making tradeoffs, then revisit what you miss. Use the weights as a guide, not as a substitute for learning every domain.</p>
